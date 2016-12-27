@@ -68,11 +68,15 @@ module Docker
   end
 
   def url
-    @url ||= env_url || default_socket_url
+    @url = if env_url
+             env_url
+	   elsif File.exist?(default_socket_url)
+	     default_socket_url
+	   else
+	     'tcp://'
+	   end
     # docker uses a default notation tcp:// which means tcp://localhost:2375
-    if @url == 'tcp://'
-      @url = 'tcp://localhost:2375'
-    end
+    @url = 'tcp://127.0.0.1:2375' if @url == 'tcp://'
     @url
   end
 
